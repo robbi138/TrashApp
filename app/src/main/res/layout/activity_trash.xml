@@ -25,7 +25,7 @@
         android:layout_below="@+id/checkBox"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="39dp"
-        android:onClick="onButton"
+        android:onClick="onClick"
         android:text="@string/submit"
         android:textSize="18sp" />
 </RelativeLayout>

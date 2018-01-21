@@ -18,7 +18,20 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
+
+    private static final String GET_CAN_URL = "http://webdev.cse.msu.edu/~robbi138/trashApp/canRetrieve.php";
+
 
     private LocationManager locationManager = null;
     private SharedPreferences settings = null;
@@ -49,7 +62,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
-
 
     /**
      * Manipulates the map once available.
@@ -99,10 +111,75 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         latitude = location.getLatitude();
         longitude = location.getLongitude();
         LatLng selfLoc = new LatLng(latitude, longitude);
+        final String query = GET_CAN_URL
+                + "?x="
+                + Double.toString(latitude)
+                + "&y="
+                + Double.toString(longitude);
+        final stringHolder holder = new stringHolder();
+        final CountDownLatch latch = new CountDownLatch(1);
+        final String[] value = new String[1];
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL(query);
+
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    int responseCode = conn.getResponseCode();
+
+                    BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                    StringBuilder sb = new StringBuilder();
+                    String response;
+                    while ((response = br.readLine()) != null){
+                        sb.append(response);
+                    }
+                    holder.setS(response);
+                    value[0] = sb.toString();
+                    latch.countDown();
+
+                } catch (MalformedURLException e) {
+                    // Should never happen
+
+                } catch (IOException ex) {
+
+                }
+            }
+        }).start();
+        try{
+            latch.await();
+        }
+        catch(InterruptedException e){
+
+        }
+        String test = holder.getS();
+
+        if(test != null){
+        List<String> coordList = Arrays.asList(value[0].split("\n"));
+            for(String s : coordList){
+                List<String> coords = Arrays.asList(s.split(","));
+                double xC = Double.parseDouble(coords.get(0));
+                double yC = Double.parseDouble(coords.get(1));
+                LatLng Loc = new LatLng(xC, yC);
+                mMap.addMarker(new MarkerOptions().position(Loc).title("Trash"));
+            }
+        }
         mMap.addMarker(new MarkerOptions().position(selfLoc).title("You"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(selfLoc));
         mMap.animateCamera( CameraUpdateFactory.zoomTo( 19.0f ) );
         mapFragment.onResume();
     }
+
+    public class stringHolder{
+        private String str;
+        private void setS(String s){
+            str = s;
+        }
+        private String getS(){
+            return str;
+        }
+    }
+
+   static String memberStr;
 
 }
