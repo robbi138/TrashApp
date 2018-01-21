@@ -3,4 +3,6 @@
     <string name="button1">Go to Map</string>
     <string name="button2">Add new Trash Can</string>
     <string name="Title">Welcome to the Trash Can App</string>
+    <string name="check">Recycling?</string>
+    <string name="submit">Submit Trash Can</string>
 </resources>

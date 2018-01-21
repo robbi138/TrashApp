@@ -1,7 +1,9 @@
 package com.example.austin.trashapp;
 
-import android.support.v7.app.AppCompatActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 
 public class TrashActivity extends AppCompatActivity {
 
@@ -12,4 +14,14 @@ public class TrashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trash);
     }
+
+
+    public void onButton(View view)
+    {
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
+    }
+
+
 }
+
