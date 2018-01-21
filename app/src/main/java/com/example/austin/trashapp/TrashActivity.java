@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -26,6 +27,30 @@ public class TrashActivity extends AppCompatActivity {
     private static final String CREATE_CAN_URL = "http://webdev.cse.msu.edu/~robbi138/trashApp/insertCan.php";
 
     private LocationManager locationManager = null;
+    private ActiveListener activeListener = new ActiveListener();
+
+    private class ActiveListener implements LocationListener {
+
+        @Override
+        public void onLocationChanged(Location location) {
+
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s) {
+
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,48 +86,59 @@ public class TrashActivity extends AppCompatActivity {
             // for ActivityCompat#requestPermissions for more details.
             return;
         }
-        location = locationManager.getLastKnownLocation(bestAvailable);
+        if(bestAvailable != null) {
+            locationManager.requestLocationUpdates(bestAvailable, 500, 1, new LocationListener() {
 
-        locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
+                public void onLocationChanged(Location location) {}
 
-        CheckBox c = (CheckBox) findViewById(R.id.checkBox);
-        boolean checked = c.isChecked();
-        String rec;
-        if(checked){
-            rec = "1";
-        }
-        else{
-            rec = "0";        }
+                public void onProviderDisabled(String provider) {}
 
-        final String query = CREATE_CAN_URL
-                + "?x="
-                + Double.toString(latitude)
-                + "&y="
-                + Double.toString(longitude)
-                +"&rec="
-                + rec;
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    URL url = new URL(query);
+                public void onProviderEnabled(String provider) {}
 
-                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                    int responseCode = conn.getResponseCode();
+                public void onStatusChanged(String provider, int status,
+                                            Bundle extras) {}
+            });
+            location = locationManager.getLastKnownLocation(bestAvailable);
 
+            locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            double latitude = location.getLatitude();
+            double longitude = location.getLongitude();
 
-
-                } catch (MalformedURLException e) {
-                    // Should never happen
-
-                } catch (IOException ex) {
-
-                }
+            CheckBox c = (CheckBox) findViewById(R.id.checkBox);
+            boolean checked = c.isChecked();
+            String rec;
+            if (checked) {
+                rec = "1";
+            } else {
+                rec = "0";
             }
-        }).start();
 
+            final String query = CREATE_CAN_URL
+                    + "?x="
+                    + Double.toString(latitude)
+                    + "&y="
+                    + Double.toString(longitude)
+                    + "&rec="
+                    + rec;
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        URL url = new URL(query);
+
+                        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                        int responseCode = conn.getResponseCode();
+
+
+                    } catch (MalformedURLException e) {
+                        // Should never happen
+
+                    } catch (IOException ex) {
+
+                    }
+                }
+            }).start();
+        }
 
         Intent intent = new Intent(this, MapsActivity.class);
         startActivity(intent);

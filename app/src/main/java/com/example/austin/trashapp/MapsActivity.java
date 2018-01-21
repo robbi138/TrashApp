@@ -154,8 +154,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         String test = holder.getS();
 
-        if(test != null){
-        List<String> coordList = Arrays.asList(value[0].split("\n"));
+        if(value[0] != null){
+        List<String> coordList = Arrays.asList(value[0].split("~"));
             for(String s : coordList){
                 List<String> coords = Arrays.asList(s.split(","));
                 double xC = Double.parseDouble(coords.get(0));
