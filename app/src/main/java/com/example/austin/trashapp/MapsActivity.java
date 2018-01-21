@@ -101,6 +101,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng selfLoc = new LatLng(latitude, longitude);
         mMap.addMarker(new MarkerOptions().position(selfLoc).title("You"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(selfLoc));
+        mMap.animateCamera( CameraUpdateFactory.zoomTo( 19.0f ) );
         mapFragment.onResume();
     }
 
